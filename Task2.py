@@ -92,9 +92,7 @@ def median(params, input_image_path, output_image_path):
 
     for i in range(h):
         for j in range(w):
-            new_img[i, j, 0] = np.median(img[max(0, i - r): min(h, i + r + 1), max(0, j - r): min(w, j + r + 1), 0])
-            new_img[i, j, 1] = np.median(img[max(0, i - r): min(h, i + r + 1), max(0, j - r): min(w, j + r + 1), 1])
-            new_img[i, j, 2] = np.median(img[max(0, i - r): min(h, i + r + 1), max(0, j - r): min(w, j + r + 1), 2])
+            new_img[i, j, :] = np.median(img[max(0, i - r): min(h, i + r + 1), max(0, j - r): min(w, j + r + 1), :])
 
     image_file_save(output_image_path, new_img.astype('uint8'))
 
@@ -113,9 +111,8 @@ def gauss(params, input_image_file, output_image_file):
     f = np.exp(-(x ** 2 + y ** 2) / (2 * sigma_d ** 2))
     m = f / np.sum(f)
 
-    new_img[:, :, 0] = ndimage.convolve(img[:, :, 0], m)
-    new_img[:, :, 1] = ndimage.convolve(img[:, :, 1], m)
-    new_img[:, :, 2] = ndimage.convolve(img[:, :, 2], m)
+    for i in range(3):
+        new_img[:, :, i] = ndimage.convolve(img[:, :, i], m)
 
     # edges processing
     new_img[new_img > 255] = 255
@@ -156,8 +153,7 @@ def bilateral(params, input_file_name, output_file_name):
     gaussian_d = np.zeros((size * 2 + 1, size * 2 + 1, 3))
     for i in range(size * 2 + 1):
         for j in range(size * 2 + 1):
-            gaussian_d[i, j, :] = np.exp(- (((i - size) ** 2) + (j - size) ** 2) / (2 * sigma_d ** 2)) / \
-                                  (2 * sigma_d ** 2 * np.pi)
+            gaussian_d[i, j, :] = np.exp(- (((i - size) ** 2) + (j - size) ** 2) / (2 * sigma_d ** 2))
 
     res = np.zeros((img.shape[0], img.shape[1], 3), dtype=float)
     for i in range(img.shape[0]):
